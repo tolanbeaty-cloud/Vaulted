@@ -1,0 +1,4 @@
+{"manifest_version":3,"name":"VAULT Spending Shield","version":"0.2.0",
+"description":"Sends you to your VAULT when you reach a checkout on a store you chose.",
+"permissions":["storage","webNavigation"],"background":{"service_worker":"background.js"},"options_page":"options.html",
+"content_scripts":[{"matches":["https://*.vercel.app/*","http://localhost:3000/*"],"js":["bridge.js"],"run_at":"document_idle"}]}

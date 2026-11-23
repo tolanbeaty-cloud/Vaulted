@@ -1,0 +1,195 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>VAULT</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#101010;--bg2:#191919;--card:#202020;--gold:#C9A96E;--tx:#F5F0E8;--mu:#929292;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101010;--bg2:#191919;--card:#202020;--tx:#F5F0E8;--mu:#929292}}
+:root[data-theme="dark"]{--bg:#101010;--card:#202020;--tx:#F5F0E8}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 Inter,system-ui,sans-serif}
+h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;margin:0 0 .4em;letter-spacing:.02em}h1{font-size:34px}h2{font-size:24px}
+nav{position:fixed;left:0;top:0;bottom:0;width:210px;background:var(--bg2);padding:28px 16px;display:flex;flex-direction:column;gap:4px;border-right:1px solid #2a2a2a}
+nav b{font:600 26px "Cormorant Garamond",serif;letter-spacing:.3em;color:var(--gold);margin:0 8px 24px}
+nav button{all:unset;cursor:pointer;padding:10px 12px;border-radius:12px;color:var(--mu);display:flex;gap:10px}
+nav button.on,nav button:hover{background:var(--card);color:var(--tx)}nav button.on i{color:var(--gold)}nav i{font-style:normal}
+main{margin-left:210px;padding:36px;max-width:1000px;overflow-x:hidden}
+.card{background:var(--card);border-radius:20px;padding:22px;margin-bottom:16px;border:1px solid #2b2b2b}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--bg2);border-radius:16px;padding:14px}.stat small{color:var(--mu);display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em}.stat b{font-size:22px;font-weight:500}
+.hero{text-align:center}.hero svg{width:min(260px,70%)}.lock{letter-spacing:.25em;color:var(--gold);font-size:12px}.bal{font:500 40px "Cormorant Garamond",serif}
+.cd{font:500 30px "Cormorant Garamond",serif;color:var(--tx)}
+.btn{background:var(--gold);color:#101010;border:0;border-radius:12px;padding:10px 18px;font:600 14px Inter,sans-serif;cursor:pointer}.btn.g{background:transparent;color:var(--tx);border:1px solid #3a3a3a}.btn:disabled{opacity:.4;cursor:not-allowed}
+input,select,textarea{background:var(--bg2);color:var(--tx);border:1px solid #333;border-radius:10px;padding:9px 11px;font:inherit;width:100%}
+label{display:block;color:var(--mu);font-size:12px;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.06em}label.c{display:flex;gap:8px;align-items:center;text-transform:none;font-size:14px;color:var(--tx)}label.c input{width:auto}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:120px}.sp{justify-content:space-between}.sp>*{flex:0 1 auto}
+.bar{height:8px;background:var(--bg2);border-radius:8px;overflow:hidden}.bar>div{height:100%;background:var(--gold)}
+.pill{display:inline-block;border:1px solid var(--gold);color:var(--gold);border-radius:99px;padding:2px 10px;font-size:12px}
+.ach{opacity:.4}.ach.on{opacity:1;border-color:var(--gold)}.mu{color:var(--mu)}.gold{color:var(--gold)}
+.ov{position:fixed;inset:0;background:rgba(5,5,5,.96);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;text-align:center}
+.ov .in{max-width:460px;width:100%}.door{transform-origin:left center;transition:transform 2s ease}.open .door{transform:perspective(600px) rotateY(-75deg)}.shut .door{animation:cl 1.6s ease forwards}
+@keyframes cl{from{transform:perspective(600px) rotateY(-75deg)}to{transform:none}}
+.dial{transform-origin:100px 100px;animation:sp 6s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.glow{opacity:0;transition:opacity 2s}.open .glow{opacity:1}.res{opacity:0;transition:opacity 1.2s 2.2s}.open .res{opacity:1}
+.fx{animation:fi .35s ease}@keyframes fi{from{opacity:0;transform:translateY(8px)}}
+.mb{display:flex;align-items:flex-end;gap:8px;height:110px}.mb div{flex:1;background:var(--gold);border-radius:6px 6px 0 0;min-height:3px}
+@media(max-width:800px){nav{top:auto;width:100%;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid #2a2a2a;z-index:20;justify-content:space-around}nav b{display:none}nav button{flex-direction:column;align-items:center;font-size:10px;gap:0;padding:6px}main{margin:0;padding:20px 16px 90px}}
+</style></head><body><nav id="nav"></nav><main id="app"></main><div id="ovl"></div>
+<script>
+const D=864e5,K='vault.v1',$=s=>document.querySelector(s);
+const SITES=['Amazon','Nike','Depop','eBay','Shein','TikTok Shop'];
+const ACH=[['FIRST STEPS','Complete your first 7 days',s=>s.days>=7],['DISCIPLINED','Complete 14 days',s=>s.days>=14],['UNBREAKABLE','Complete 30 days',s=>s.days>=30],['IRON WILL','Complete 60 days',s=>s.days>=60],['VAULT MASTER','Complete 90 days',s=>s.days>=90],['IMPULSE CONTROL','Record 10 resisted purchases',s=>s.items>=10],['THE LONG GAME','Complete a 180-day challenge',s=>s.long]];
+const SKINS=[['Classic gold','#C9A96E',1],['Rose gold','#D9A68F',3],['Platinum','#CFCFD6',5]];
+const LV=['Initiate','Saver','Guardian','Sentinel','Keeper','Vault Master'];
+function seed(){const s=Date.now()-12*D;return{active:'v1',bonus:0,skin:0,name:'Guest',notif:true,hide:true,ovr:true,
+vaults:[{id:'v1',name:'Summer Reset',start:s,days:30,target:600,deposit:0,done:false,sr:s,over:false,items:[{n:'Nike shoes',s:'Nike',p:85,d:s+2*D,c:'Fashion'},{n:'Amazon order',s:'Amazon',p:32,d:s+5*D,c:'Home'},{n:'Depop jacket',s:'Depop',p:45,d:s+9*D,c:'Fashion'}]}],
+sh:{sites:SITES.map(n=>({n,on:true})),mode:'checkout',cool:24,ovr:true,msg:'You made a commitment to yourself. Is this purchase worth delaying your goals?',st:{i:0,a:0,c:0,$:0},cds:[]}}}
+let S=load(),view='dash',showProg=false,ticked=false,NO=Date.now();
+function mig(){S.ledger=S.ledger||[];S.bank=S.bank||null;S.stage=S.stage||1;S.cw=S.cw||24;S.byob=S.byob||{src:null,dst:null,on:false,rule:'avoided',pct:100,fixed:10,cap:50,dcap:100,consent:false}}mig();
+/* Provider adapter: swap this mock for Plaid Link / a partner-bank API. Real calls must run on a server; never put API secrets in the browser. */
+const PROV={link:()=>({inst:'Demo Bank (sandbox)',mask:'4821',fbo:0,t:Date.now()})};
+const vE=v=>S.ledger.filter(e=>e.v===v.id);
+const vbal=v=>vE(v).reduce((a,e)=>a+(e.state==='settled'?(e.type==='deposit'?e.amt:-e.amt):0),0);
+const dep=v=>v.deposit+Math.max(0,vbal(v));
+function recon(){if(!S.bank)return 0;const l=S.ledger.filter(e=>e.src==='custody'&&e.state==='settled').reduce((a,e)=>a+(e.type==='deposit'?e.amt:-e.amt),0);return Math.round((S.bank.fbo-l)*100)/100}
+function load(){try{const r=localStorage.getItem(K);if(r)return JSON.parse(r)}catch(e){}return seed()}
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+const $$=n=>'$'+Math.round(n).toLocaleString();
+const act=()=>S.vaults.find(v=>v.id===S.active&&!v.done)||S.vaults.find(v=>!v.done);
+const end=v=>v.start+v.days*D,el=v=>Math.max(0,Math.min(v.days,Math.floor((Date.now()-v.start)/D))),pct=v=>Math.round(el(v)/v.days*100);
+const pot=v=>v.items.reduce((a,i)=>a+i.p,0),ready=v=>Date.now()>=end(v)&&!v.done;
+const xp=v=>el(v)*10+Math.floor(el(v)/7)*25+v.items.length*15+(v.done?100:0);
+const totXp=()=>S.vaults.reduce((a,v)=>a+xp(v),0)+S.bonus,lvl=()=>Math.min(LV.length,Math.floor(totXp()/150)+1);
+const streak=v=>Math.max(0,Math.floor((Math.min(Date.now(),end(v))-v.sr)/D));
+function astats(){const d=Math.max(0,...S.vaults.map(el)),n=S.vaults.reduce((a,v)=>a+v.items.length,0);return{days:d,items:n,long:S.vaults.some(v=>v.done&&v.days>=180)}}
+function cd(v){let m=Math.max(0,end(v)-Date.now()),d=Math.floor(m/D),h=Math.floor(m%D/36e5),mi=Math.floor(m%36e5/6e4),s=Math.floor(m%6e4/1e3);return `${d}d ${h}h ${mi}m ${s}s`}
+function vaultSvg(p,open){const t=p>=75?3:p>=50?2:p>=25?1:0,g=t?'var(--gold)':'#555';
+return `<svg viewBox="0 0 200 200" style="${t>=3?'filter:drop-shadow(0 0 14px var(--gold))':''}"><rect x="14" y="14" width="172" height="172" rx="26" fill="#1a1a1a" stroke="${g}" stroke-width="${t?3:1.5}"/>
+${t>=2?'<circle cx="34" cy="34" r="3" fill="var(--gold)"/><circle cx="166" cy="34" r="3" fill="var(--gold)"/><circle cx="34" cy="166" r="3" fill="var(--gold)"/><circle cx="166" cy="166" r="3" fill="var(--gold)"/>':''}
+<g class="door"><circle cx="100" cy="100" r="62" fill="#242424" stroke="${g}" stroke-width="2"/>${t>=1?'<circle cx="100" cy="100" r="50" fill="none" stroke="var(--gold)" stroke-width="1" opacity=".7"/>':''}
+<g class="dial"><circle cx="100" cy="100" r="22" fill="#171717" stroke="${g}" stroke-width="2"/><path d="M100 70v16M100 114v16M70 100h16M114 100h16" stroke="${g}" stroke-width="3" stroke-linecap="round"/></g></g>
+<rect x="177" y="60" width="9" height="22" rx="3" fill="${g}"/><rect x="177" y="118" width="9" height="22" rx="3" fill="${g}"/></svg>`}
+function nav(){const it=[['dash','◈','Dashboard'],['vaults','▣','My Vaults'],['shield','⛨','Shield'],['ach','✦','Achievements'],['money','◎','Money'],['stats','▤','Statistics'],['set','⚙','Settings']];
+$('#nav').innerHTML='<b>VAULT</b>'+it.map(i=>`<button class="${view===i[0]?'on':''}" onclick="go('${i[0]}')"><i>${i[1]}</i>${i[2]}</button>`).join('')}
+function go(v){view=v;render()}
+function render(){document.documentElement.style.setProperty('--gold',SKINS[S.skin||0][1]);nav();
+const f={dash,vaults:vaultsV,shield,ach,money,stats,set:settings}[view];$('#app').innerHTML='<div class="fx">'+f()+'</div>';scrollTo(0,0)}
+function dash(){const v=act();if(!v)return `<h1>No active vault</h1><p class="mu">Lock away your spending. Unlock your future.</p><button class="btn" onclick="go('vaults');newForm()">Create a vault</button>`;
+const p=pct(v),r=ready(v);
+return `<p class="lock">${v.name.toUpperCase()}</p><h1>Lock away your spending. Unlock your future.</h1>
+<div class="card hero"><div role="button" tabindex="0" aria-label="Add money to vault" style="cursor:pointer" onclick="vClick()" onkeydown="if(event.key==='Enter')vClick()">${vaultSvg(p)}</div><p class="mu" style="margin:0">${r?'Tap the vault to open it':'Tap the vault to add money'}</p><p class="lock">YOUR SAVINGS ARE LOCKED</p><div class="bal">$••••••</div>
+<div class="cd" id="cd">${r?'Ready to open':cd(v)}</div><p class="mu">until unlock · ${p}% complete</p><div class="bar"><div style="width:${p}%"></div></div><br>
+<div class="row" style="justify-content:center">${r?`<button class="btn" onclick="openVault('${v.id}')">OPEN YOUR VAULT</button>`:''}<button class="btn g" onclick="showProg=!showProg;render()">View challenge progress</button></div></div>
+<div class="grid"><div class="stat"><small>Days completed</small><b>${el(v)} / ${v.days}</b></div><div class="stat"><small>Discipline streak</small><b>${streak(v)} days</b></div><div class="stat"><small>XP · Level ${lvl()}</small><b>${totXp()}</b></div><div class="stat"><small>Purchases resisted</small><b>${v.items.length}</b></div></div><br>
+${showProg?progress(v):''}
+<div class="card"><h2>Log a resisted purchase</h2><p class="mu">Amounts stay hidden until your vault opens.</p>
+<div class="row"><div><label>Item</label><input id="pn" maxlength="60"></div><div><label>Store</label><input id="ps" maxlength="40"></div><div><label>Price ($)</label><input id="pp" type="number" min="0" step="0.01"></div><div><label>Category</label><input id="pc" maxlength="30"></div></div><br>
+<button class="btn" onclick="addItem()">Record resisted purchase (+15 XP)</button> <span class="mu" id="pe"></span>
+<h3 style="margin-top:18px">Recent</h3>${v.items.length?v.items.slice().reverse().slice(0,6).map(i=>`<div class="row sp" style="padding:6px 0;border-bottom:1px solid #2b2b2b"><span>${esc(i.n)} <span class="mu">· ${esc(i.s)} · ${new Date(i.d).toLocaleDateString()}</span></span><span class="mu">$•••</span></div>`).join(''):'<p class="mu">Nothing recorded yet.</p>'}
+<h3 style="margin-top:18px">Self-reported deposit</h3><p class="mu">Money you say you moved into savings. Bank-verified deposits live on the Money page and are tracked separately from avoided purchases.</p>
+<div class="row"><input id="dp" type="number" min="0" placeholder="Amount ($)"><button class="btn g" onclick="addDep()">Add deposit</button></div></div>
+<p class="mu">VAULT is not a bank and never holds your money. It can verify deposits or, with your permission, start transfers between two accounts you own. It makes no FDIC claims. Custody (Stage 2) is a simulation here.</p>
+<p><a class="mu" href="#" onclick="skip();return false">Demo: jump to the end of this challenge</a> · <a class="mu" href="#" onclick="override();return false">Emergency override</a></p>`}
+function progress(v){const w=Math.ceil(v.days/7);let h='';for(let i=0;i<Math.min(w,13);i++){const d=Math.min(7,Math.max(0,el(v)-i*7));h+=`<div class="row sp"><span>Week ${i+1}</span><span class="mu">${d}/7 days${d>=7?' · +25 XP':''}</span></div><div class="bar"><div style="width:${d/7*100}%"></div></div><br>`}
+return `<div class="card"><h2>Challenge progress</h2>${h}<p class="mu">Started ${new Date(v.start).toLocaleDateString()} · unlocks ${new Date(end(v)).toLocaleDateString()}</p></div>`}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function addItem(){const v=act(),n=$('#pn').value.trim(),s=$('#ps').value.trim(),p=parseFloat($('#pp').value);
+if(!n||!s||!(p>0)||p>1e6){$('#pe').textContent='Enter an item, store and a price above $0.';return}
+v.items.push({n,s,p,d:Date.now(),c:$('#pc').value.trim()});save();render()}
+function addDep(){const v=act(),a=parseFloat($('#dp').value);if(!(a>0))return;v.deposit+=a;save();render()}
+function skip(){const v=act();v.start=Date.now()-v.days*D-1000;v.sr=v.sr>v.start?v.start:v.sr;save();render()}
+function override(){const v=act();modal(`<h2>Emergency override</h2><p class="mu">This reveals your hidden balance and resets your streak. Only you can enforce your challenge.</p><div class="row"><button class="btn g" onclick="closeM()">Cancel</button><button class="btn" onclick="doOvr()">Reveal balance</button></div>`)}
+function doOvr(){const v=act();v.sr=Date.now();v.over=true;save();modal(`<h2>${esc(v.name)}</h2><p>Potential savings: <b class="gold">${$$(pot(v))}</b></p><p>Actual deposits: <b class="gold">${$$(dep(v))}</b></p><button class="btn" onclick="closeM();render()">Close</button>`)}
+function modal(h){$('#ovl').innerHTML=`<div class="ov"><div class="in card">${h}</div></div>`}
+function closeM(){$('#ovl').innerHTML=''}
+function openVault(id){const v=S.vaults.find(x=>x.id===id);v.done=true;save();const a=astats(),got=ACH.filter(x=>x[2](a)).map(x=>x[0]);
+$('#ovl').innerHTML=`<div class="ov" id="uv"><div class="in"><p class="lock">UNLOCKING…</p>${vaultSvg(100)}<div class="res"><p class="lock">VAULT OPEN</p><h2>${esc(v.name)}</h2>
+<div class="grid" style="text-align:left"><div class="stat"><small>Potential savings</small><b class="gold">${$$(pot(v))}</b></div><div class="stat"><small>Actual deposited</small><b class="gold">${$$(dep(v))}</b></div><div class="stat"><small>Resisted</small><b>${v.items.length}</b></div><div class="stat"><small>Days</small><b>${v.days}</b></div><div class="stat"><small>Longest streak</small><b>${streak(v)}</b></div><div class="stat"><small>XP</small><b>${xp(v)}</b></div></div>
+<p class="mu">Achievements: ${got.length?got.join(', '):'none yet'}</p><p class="mu">Potential savings are money you chose not to spend, not bank deposits.</p><button class="btn" onclick="closeM();go('vaults');newForm()">START A NEW VAULT</button></div></div></div>`;
+setTimeout(()=>{const u=$('#uv');u&&u.classList.add('open')},400)}
+function vaultsV(){return `<h1>My Vaults</h1><div id="vf"></div>${S.vaults.map(v=>`<div class="card"><div class="row sp"><div><h3>${esc(v.name)} ${v.done?'<span class="pill">Complete</span>':v.id===(act()||{}).id?'<span class="pill">Active</span>':''}</h3><span class="mu">${v.days} days · ${new Date(v.start).toLocaleDateString()} → ${new Date(end(v)).toLocaleDateString()} · ${v.items.length} resisted · ${xp(v)} XP${v.target?' · target '+(v.done?$$(v.target):'$•••'):''}</span></div>
+<div class="row" style="flex:0 0 auto">${!v.done?`<button class="btn g" onclick="S.active='${v.id}';save();go('dash')">Make active</button>`:''}<button class="btn g" onclick="renameV('${v.id}')">Edit</button><button class="btn g" onclick="delV('${v.id}')">Delete</button></div></div></div>`).join('')||'<p class="mu">No vaults yet.</p>'}<button class="btn" onclick="newForm()">+ New vault</button>`}
+function newForm(){const t=new Date().toISOString().slice(0,10);$('#vf').innerHTML=`<div class="card"><h2>Create a vault</h2><label>Name</label><input id="vn" maxlength="40" placeholder="e.g. No-Spend Autumn">
+<div class="row"><div><label>Duration</label><select id="vd" onchange="$('#vc').style.display=this.value=='c'?'block':'none'">${[7,14,30,60,90,180].map(d=>`<option value="${d}">${d} days</option>`).join('')}<option value="c">Custom</option></select><input id="vc" type="number" min="1" max="730" placeholder="Days" style="display:none;margin-top:6px"></div><div><label>Savings target ($, optional)</label><input id="vt" type="number" min="0"></div><div><label>Start date</label><input id="vs" type="date" value="${t}"></div></div>
+<label>Restrictions</label><div class="row">${['Online shopping','Fast food','Impulse gadgets','Clothing'].map(x=>`<label class="c"><input type="checkbox" checked>${x}</label>`).join('')}</div>
+<label class="c"><input type="checkbox" id="vh" checked>Hide my balance until unlock</label><label class="c"><input type="checkbox" checked>Daily reminder notifications</label><br><span class="gold" id="ve"></span><br><button class="btn" onclick="mk()">Lock the vault</button></div>`}
+function mk(){const n=$('#vn').value.trim();let d=$('#vd').value=='c'?parseInt($('#vc').value):parseInt($('#vd').value);
+if(n.length<2)return $('#ve').textContent='Give your vault a name.';if(!(d>=1&&d<=730))return $('#ve').textContent='Duration must be 1–730 days.';
+const s=new Date($('#vs').value+'T00:00:00').getTime()||Date.now(),v={id:'v'+Date.now(),name:n,start:s,days:d,target:parseFloat($('#vt').value)||0,deposit:0,done:false,sr:s,over:false,items:[]};
+S.vaults.push(v);S.active=v.id;save();$('#ovl').innerHTML=`<div class="ov shut"><div class="in">${vaultSvg(0)}<p class="lock">VAULT SEALED</p></div></div>`;setTimeout(()=>{closeM();go('dash')},2100)}
+function renameV(id){const v=S.vaults.find(x=>x.id===id);modal(`<h2>Edit vault</h2><label>Name</label><input id="rn" value="${esc(v.name)}" maxlength="40"><br><br><button class="btn" onclick="const n=$('#rn').value.trim();if(n){S.vaults.find(x=>x.id==='${id}').name=n;save();closeM();render()}">Save</button> <button class="btn g" onclick="closeM()">Cancel</button>`)}
+function delV(id){modal(`<h2>Delete vault?</h2><p class="mu">This can’t be undone.</p><button class="btn" onclick="S.vaults=S.vaults.filter(x=>x.id!=='${id}');save();closeM();render()">Delete</button> <button class="btn g" onclick="closeM()">Cancel</button>`)}
+function shield(){const h=S.sh,st=h.st,now=Date.now();h.cds=h.cds.filter(c=>c.u>now);
+return `<h1>Spending Shield</h1><div class="grid"><div class="stat"><small>Interruptions</small><b>${st.i}</b></div><div class="stat"><small>Abandoned</small><b>${st.a}</b></div><div class="stat"><small>Cooldowns</small><b>${st.c}</b></div><div class="stat"><small>Est. saved</small><b>${$$(st.$)}</b></div></div><br>
+<div class="card"><h2>Try the Shield</h2><p class="mu">A demo of the checkout interruption. Real blocking on other sites needs the Chrome extension.</p><div class="row"><select id="ss">${h.sites.filter(s=>s.on).map(s=>`<option>${esc(s.n)}</option>`).join('')}</select><input id="sv" type="number" min="0" placeholder="Cart value ($)" value="60"><button class="btn" onclick="sim()">Simulate checkout</button></div>
+${h.cds.length?'<p class="mu">Active cooldowns: '+h.cds.map(c=>esc(c.s)+' until '+new Date(c.u).toLocaleString()).join('; ')+'</p>':''}</div>
+<div class="card"><h2>Restricted sites</h2>${h.sites.map((s,i)=>`<label class="c"><input type="checkbox" ${s.on?'checked':''} onchange="S.sh.sites[${i}].on=this.checked;save()">${esc(s.n)}</label>`).join('')}
+<div class="row"><input id="ns" placeholder="Add a custom website" maxlength="40"><button class="btn g" onclick="const n=$('#ns').value.trim();if(n){S.sh.sites.push({n,on:true});save();render()}">Add</button></div></div>
+<div class="card"><h2>Rules</h2><div class="row"><div><label>Interrupt on</label><select onchange="S.sh.mode=this.value;save()"><option value="checkout" ${h.mode=='checkout'?'selected':''}>Checkout pages</option><option value="shop" ${h.mode=='shop'?'selected':''}>All shopping pages</option></select></div><div><label>Cooldown (hours)</label><input type="number" min="1" max="168" value="${h.cool}" onchange="S.sh.cool=Math.max(1,+this.value||24);save()"></div></div>
+<label class="c"><input type="checkbox" ${h.ovr?'checked':''} onchange="S.sh.ovr=this.checked;save()">Allow “Continue anyway”</label><label>Interruption message</label><textarea rows="2" maxlength="200" onchange="S.sh.msg=this.value;save()">${esc(h.msg)}</textarea></div>`}
+function sim(){const s=$('#ss').value,c=parseFloat($('#sv').value)||0,h=S.sh,cd=h.cds.find(x=>x.s===s&&x.u>Date.now());
+modal(`<p class="lock">BEFORE YOU SPEND…</p><h2>${esc(s)}</h2><p>${esc(h.msg)}</p>${cd?'<p class="gold">Cooldown active until '+new Date(cd.u).toLocaleString()+'</p>':''}<div style="display:grid;gap:8px"><button class="btn" onclick="sa('w','${esc(s)}',${c})">WALK AWAY</button><button class="btn g" onclick="sa('c','${esc(s)}',${c})">START ${h.cool}-HOUR COOLDOWN</button><button class="btn g" ${h.ovr?'':'disabled'} onclick="sa('x','${esc(s)}',${c})">CONTINUE ANYWAY</button></div>`)}
+function sa(k,s,c){let T='';const h=S.sh;h.st.i++;if(k=='w'){h.st.a++;h.st.$+=c;S.bonus+=10;T=byobTrig(c,s)}if(k=='c'){h.st.c++;h.cds.push({s,u:Date.now()+h.cool*36e5})}if(k=='x'){const v=act();if(v)v.sr=Date.now()}save();closeM();render();if(T)modal(`<h2>Good call</h2><p class="mu">${T}</p><button class="btn" onclick="closeM()">Done</button>`)}
+function ach(){const a=astats(),l=lvl(),nx=l*150;return `<h1>Achievements</h1><div class="card"><h2>Level ${l} · ${LV[l-1]}</h2><p class="mu">${totXp()} XP${l<LV.length?' · next level at '+nx:' · max level'}</p><div class="bar"><div style="width:${Math.min(100,totXp()%150/1.5)}%"></div></div></div>
+<div class="grid">${ACH.map(x=>{const o=x[2](a);return `<div class="card ach ${o?'on':''}"><span class="gold">${o?'★':'🔒'}</span><h3>${x[0]}</h3><span class="mu">${x[1]}</span></div>`}).join('')}</div>
+<h2>Vault appearances</h2><div class="row">${SKINS.map((k,i)=>`<button class="btn ${S.skin==i?'':'g'}" ${l<k[2]?'disabled':''} onclick="S.skin=${i};save();render()">${k[0]}${l<k[2]?' · Lv '+k[2]:''}</button>`).join('')}</div>`}
+function stats(){const dn=S.vaults.filter(v=>v.done),tp=dn.reduce((a,v)=>a+pot(v),0),ta=dn.reduce((a,v)=>a+dep(v),0),n=dn.reduce((a,v)=>a+v.items.length,0),all=S.vaults.flatMap(v=>v.items),m={};
+all.forEach(i=>{const k=new Date(i.d).toLocaleDateString(undefined,{month:'short'});m[k]=(m[k]||0)+1});const mx=Math.max(1,...Object.values(m)),a=act();
+return `<h1>Statistics</h1><p class="mu">Dollar figures count completed vaults only. Active balances stay locked.</p><div class="grid"><div class="stat"><small>Potential savings</small><b>${$$(tp)}</b></div><div class="stat"><small>Actual savings</small><b>${$$(ta)}</b></div><div class="stat"><small>Resisted (all)</small><b>${all.length}</b></div><div class="stat"><small>Avg resisted value</small><b>${n?$$(tp/n):'—'}</b></div><div class="stat"><small>Completed</small><b>${dn.length}</b></div><div class="stat"><small>Current streak</small><b>${a?streak(a):0} days</b></div></div><br>
+<div class="card"><h2>Monthly progress</h2><p class="mu">Purchases resisted per month</p>${all.length?`<div class="mb">${Object.entries(m).map(([k,c])=>`<div style="height:${c/mx*100}%" title="${k}: ${c}"></div>`).join('')}</div><div class="row" style="gap:8px">${Object.keys(m).map(k=>`<span class="mu" style="min-width:0;text-align:center">${k}</span>`).join('')}</div>`:'<p class="mu">No data yet.</p>'}</div>`}
+function settings(){return `<h1>Settings</h1><div class="card"><label>Profile name</label><input value="${esc(S.name)}" maxlength="40" onchange="S.name=this.value;save()">
+<label class="c"><input type="checkbox" ${S.notif?'checked':''} onchange="S.notif=this.checked;save()">Notifications</label><label class="c"><input type="checkbox" ${S.hide?'checked':''} onchange="S.hide=this.checked;save()">Hide balances by default</label><label class="c"><input type="checkbox" ${S.ovr?'checked':''} onchange="S.ovr=this.checked;save()">Allow emergency override</label><p class="mu">Theme: dark only. Overrides are your own choice; VAULT can’t enforce them.</p></div>
+<div class="card"><h2>Your data</h2><p class="mu">Stored in this browser only. Supabase sync isn’t connected yet.</p><button class="btn g" onclick="$('#ex').value=JSON.stringify(S,null,2);$('#ex').style.display='block'">Show export</button><textarea id="ex" rows="8" readonly style="display:none;margin-top:10px"></textarea><br><br>
+<button class="btn g" onclick="modal('<h2>Delete all data?</h2><p class=mu>This removes every vault and resets the app.</p><button class=btn onclick=wipe()>Delete</button> <button class=&quot;btn g&quot; onclick=closeM()>Cancel</button>')">Delete account data</button></div>`}
+function money(){const v=act(),b=S.bank,st=S.stage,df=recon(),now=Date.now(),c=st===2;
+const rows=S.ledger.slice().reverse().slice(0,12).map(e=>{const vv=S.vaults.find(x=>x.id===e.v)||{},shown=vv.done?$$(e.amt):'$•••';
+let a='';if(e.state==='pending')a=`<button class="btn g" onclick="mSettle('${e.id}')">Settle now (demo)</button>`+(e.src==='byob'?` <button class="btn g" onclick="bRet('${e.id}')">Simulate ACH return</button>`:'');
+if(e.state==='cooling')a=`<button class="btn g" onclick="mCan('${e.id}')">Cancel</button> `+(now>=e.rel?`<button class="btn" onclick="mRel('${e.id}')">Release</button>`:`<button class="btn g" onclick="mSkip('${e.id}')">Skip wait (demo)</button>`);
+return `<div class="row sp" style="padding:8px 0;border-bottom:1px solid #2b2b2b"><span>${e.type==='deposit'?'Deposit':'Withdrawal'} · ${esc(vv.name||'')} <span class="mu">· ${shown} · ${e.src==='custody'?'custody ledger':e.src==='byob'?'auto-transfer to your savings':'verified from your bank'} · ${new Date(e.t).toLocaleDateString()}</span></span><span><span class="pill">${e.state}${e.state==='cooling'?' until '+new Date(e.rel).toLocaleString():''}</span> ${a}</span></div>`}).join('');
+return `<h1>Money</h1><div class="card"><p class="lock">STAGE ${st} · ${c?'CUSTODY (SIMULATED)':'VERIFY ONLY'}</p><p class="mu">${c?'Simulated partner-bank flow: each vault is a ledger entry inside a pooled FBO account, reconciled against the bank’s record. No real money moves.':'Your money stays in your own bank. VAULT only reads a linked account to verify deposits. It never holds or moves funds.'}</p>
+<div class="row"><button class="btn ${c?'g':''}" onclick="mStage(1)">Stage 1 · Verify</button><button class="btn ${c?'':'g'}" onclick="mStage(2)">Stage 2 · Custody</button><button class="btn g" disabled>Stage 3 · Investing</button></div></div>
+<div class="card"><h2>Linked account</h2>${b?`<p>${esc(b.inst)} ••${b.mask} <span class="pill">Connected (mock)</span></p>`:`<p class="mu">Sandbox only. A real build uses Plaid Link, with tokens stored server-side.</p><button class="btn" onclick="mLink()">Link account (sandbox)</button>`}</div>
+${b&&v?`<div class="card"><h2>${c?'Transfer into vault (ACH)':'Record a deposit detected in your bank'}</h2><p class="mu">Amounts stay hidden until “${esc(v.name)}” opens. ${c?'ACH can reverse, so transfers stay pending until settled.':''}</p><div class="row"><input id="md" type="number" min="0" step="0.01" placeholder="Amount ($)"><button class="btn" onclick="mDep()">${c?'Start transfer':'Verify deposit'}</button></div><p class="gold" id="me"></p></div>`:''}
+${b&&c?`<div class="card"><h2>Withdraw</h2><p class="mu">Requests wait through a cooling-off period instead of a hard lock. You can cancel any time before release. Early withdrawals reset your streak. Availability is checked at release.</p><div class="row"><select id="mv">${S.vaults.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><input id="mw" type="number" min="0" step="0.01" placeholder="Amount ($)"><input type="number" min="1" max="168" value="${S.cw}" title="Cooling-off hours" onchange="S.cw=Math.max(1,+this.value||24);save()"><button class="btn" onclick="mWd()">Request</button></div></div>
+<div class="card"><h2>Reconciliation</h2><p>${df===0?'<span class="gold">✓ Ledger matches the bank record.</span>':'<span class="gold">⚠ Mismatch of '+$$(Math.abs(df))+'. Transfers are paused until resolved.</span>'}</p><p class="mu">Compared independently on every action. Don’t trust a middleman’s ledger on its own.</p><button class="btn g" onclick="mDrift()">Simulate bank-side discrepancy (demo)</button> <button class="btn g" onclick="S.bank.fbo-=recon();save();render()">Resolve</button></div>`:''}
+${byobCard()}<div class="card"><h2>Ledger</h2>${rows||'<p class="mu">No entries yet.</p>'}</div>`}
+function vClick(){const v=act();if(!v)return;if(ready(v))openVault(v.id);else vAdd()}
+function vAdd(){const v=act(),c=S.stage===2,b=S.bank;
+modal(`<p class="lock">${esc(v.name).toUpperCase()}</p><h2>Add money</h2><p class="mu">${b?(c?'Starts a simulated ACH transfer into your vault. It stays pending until it settles.':'Records a deposit you made in your linked bank. VAULT doesn’t move money.'):'No bank is linked, so this is saved as self-reported. Link an account on the Money page to verify deposits.'} Your balance stays hidden.</p><input id="va" type="number" min="0" step="0.01" placeholder="Amount ($)"><p class="gold" id="vm"></p><div class="row"><button class="btn g" onclick="closeM()">Cancel</button><button class="btn" onclick="vGo()">Add to vault</button></div>`)}
+function vGo(){const v=act(),a=parseFloat($('#va').value),c=S.stage===2;if(!(a>0)||a>1e6){$('#vm').textContent='Enter an amount above $0.';return}
+let msg='Saved as self-reported.';
+if(S.bank){if(c&&recon()!==0){$('#vm').textContent='Transfers are paused: ledger and bank record don’t match.';return}
+const k='d-'+NO;if(S.ledger.some(e=>e.key===k))return;
+S.ledger.push({key:k,id:k,v:v.id,type:'deposit',amt:a,src:c?'custody':'bank-read',state:c?'pending':'settled',t:Date.now()});NO=Date.now()+Math.random();
+msg=c?'Transfer started. It stays pending until it settles.':'Deposit verified from your linked bank.'}else v.deposit+=a;
+save();modal(`<h2>Added</h2><p class="mu">${msg} Your balance stays locked.</p><button class="btn" onclick="closeM();render()">Done</button>`)}
+function bLink(k){S.byob[k]=k==='src'?{inst:'Demo Checking (sandbox)',mask:'1122'}:{inst:'Demo Savings (sandbox)',mask:'4821'};save();render()}
+function bRet(id){const e=S.ledger.find(x=>x.id===id);if(e&&e.state==='pending'){e.state='returned';save();render()}}
+/* Trigger: when the Shield stops a purchase. In production the processor call (Plaid Transfer / Dwolla) runs server-side after authorization. */
+function byobTrig(c,s){const B=S.byob,v=act();if(!B.on||!B.consent||!B.src||!B.dst||!v)return '';
+let a=B.rule==='fixed'?B.fixed:Math.round(c*B.pct)/100;a=Math.min(a,B.cap);if(!(a>0))return '';
+const day=S.ledger.filter(e=>e.src==='byob'&&e.state!=='returned'&&Date.now()-e.t<864e5).reduce((x,e)=>x+e.amt,0);
+if(day+a>B.dcap)return 'Your daily transfer limit was reached, so no transfer was started.';
+const k='b-'+NO;S.ledger.push({key:k,id:k,v:v.id,type:'deposit',amt:a,src:'byob',state:'pending',t:Date.now(),why:s});NO=Date.now()+Math.random();
+return 'A transfer from your checking to your savings was started. The amount stays hidden until your vault opens.'}
+function byobCard(){const B=S.byob,ok=B.src&&B.dst,acct=(k,t)=>B[k]?`<p>${esc(B[k].inst)} ••${B[k].mask}</p>`:`<button class="btn g" onclick="bLink('${k}')">${t}</button>`;
+return `<div class="card"><h2>Automated transfers · bring your own bank</h2><p class="mu">The lowest-cost path. VAULT never holds money. When the Shield stops a purchase, it asks your processor (Plaid Transfer or Dwolla) to move cash between two accounts you already own. You need a checking account and a separate savings account.</p>
+<div class="row"><div><label>From (checking)</label>${acct('src','Link checking (sandbox)')}</div><div><label>To (savings)</label>${acct('dst','Link savings (sandbox)')}</div></div>
+${ok?`<div class="row"><div><label>Amount per blocked purchase</label><select onchange="S.byob.rule=this.value;save();render()"><option value="avoided" ${B.rule==='avoided'?'selected':''}>% of the cart value</option><option value="fixed" ${B.rule==='fixed'?'selected':''}>Fixed amount</option></select></div><div><label>${B.rule==='fixed'?'Fixed ($)':'Percent (%)'}</label><input type="number" min="1" value="${B.rule==='fixed'?B.fixed:B.pct}" onchange="S.byob.${B.rule==='fixed'?'fixed':'pct'}=Math.max(1,+this.value||1);save()"></div><div><label>Max per transfer ($)</label><input type="number" min="1" value="${B.cap}" onchange="S.byob.cap=Math.max(1,+this.value||50);save()"></div><div><label>Max per day ($)</label><input type="number" min="1" value="${B.dcap}" onchange="S.byob.dcap=Math.max(1,+this.value||100);save()"></div></div>
+<label class="c"><input type="checkbox" ${B.consent?'checked':''} onchange="S.byob.consent=this.checked;if(!this.checked)S.byob.on=false;save();render()">I authorize VAULT to start ACH transfers between these two accounts I own, within these limits. I can revoke this any time.</label>
+<label class="c"><input type="checkbox" ${B.on?'checked':''} ${B.consent?'':'disabled'} onchange="S.byob.on=this.checked;save()">Start a transfer automatically when the Shield stops a purchase</label>`:'<p class="mu">Link both accounts to continue.</p>'}
+<p class="mu">ACH transfers take 1–3 business days, can be returned, and your bank may charge fees. Cash may pass through the processor’s partner bank in transit, so confirm with Plaid or Dwolla and a lawyer whether that creates licensing duties for you.</p>${B.src||B.dst?`<button class="btn g" onclick="S.byob={src:null,dst:null,on:false,rule:'avoided',pct:100,fixed:10,cap:50,dcap:100,consent:false};save();render()">Revoke and unlink</button>`:''}</div>`}
+function mStage(n){S.stage=n;save();render()}
+function mLink(){S.bank=PROV.link();save();render()}
+function mDep(){const v=act(),a=parseFloat($('#md').value),c=S.stage===2;if(!v||!(a>0)||a>1e6){$('#me').textContent='Enter an amount above $0.';return}
+if(c&&recon()!==0){$('#me').textContent='Transfers are paused: ledger and bank record don’t match.';return}
+const k='d-'+NO;if(S.ledger.some(e=>e.key===k))return;
+S.ledger.push({key:k,id:k,v:v.id,type:'deposit',amt:a,src:c?'custody':'bank-read',state:c?'pending':'settled',t:Date.now()});NO=Date.now()+Math.random();save();render()}
+function mSettle(id){const e=S.ledger.find(x=>x.id===id);if(!e||e.state!=='pending')return;e.state='settled';if(e.src==='custody')S.bank.fbo+=e.amt;save();render()}
+function mWd(){const v=S.vaults.find(x=>x.id===$('#mv').value),a=parseFloat($('#mw').value);if(!v||!(a>0))return;if(recon()!==0)return;
+S.ledger.push({key:'w-'+NO,id:'w-'+NO,v:v.id,type:'withdrawal',amt:a,src:'custody',state:'cooling',t:Date.now(),rel:Date.now()+S.cw*36e5});NO=Date.now()+Math.random();if(!v.done)v.sr=Date.now();save();render()}
+function mRel(id){const e=S.ledger.find(x=>x.id===id),v=S.vaults.find(x=>x.id===e.v);if(!e||e.state!=='cooling'||Date.now()<e.rel)return;if(e.amt>vbal(v))e.state='rejected';else{e.state='settled';S.bank.fbo-=e.amt}save();render()}
+function mCan(id){const e=S.ledger.find(x=>x.id===id);if(e&&e.state==='cooling'){e.state='cancelled';save();render()}}
+function mSkip(id){const e=S.ledger.find(x=>x.id===id);if(e){e.rel=Date.now()-1;save();render()}}
+function mDrift(){if(S.bank){S.bank.fbo+=5;save();render()}}
+function wipe(){S=seed();mig();save();closeM();view='dash';render()}
+setInterval(()=>{const v=act(),e=$('#cd');if(v&&e&&view==='dash'){if(ready(v)){if(!ticked){ticked=true;render()}}else{ticked=false;e.textContent=cd(v)}}},1000);
+render();
+</script></body></html>

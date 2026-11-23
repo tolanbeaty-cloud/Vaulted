@@ -1,0 +1,7 @@
+@import "tailwindcss";
+:root{--bg:#101010;--bg2:#191919;--card:#202020;--gold:#C9A96E;--tx:#F5F0E8;--mu:#929292;color-scheme:dark}
+body{background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif}
+@keyframes vf-blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.vf-blink{transform-origin:100px 88px;animation:vf-blink 4s infinite}
+@keyframes vf-talk{50%{transform:scaleY(.4)}}
+.vf-talk{transform-origin:100px 125px;animation:vf-talk .28s infinite}
